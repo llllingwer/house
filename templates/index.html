@@ -1,28 +1,21 @@
 <!DOCTYPE html>
-<!-- saved from url=(0022)http://127.0.0.1:5000/ -->
 <html lang="zh"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-    
+
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
 
     <title>二手好房</title>
-    <!-- Icon -->
     <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon"/>
     <link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
 
-    <!-- Bootstrap core CSS -->
     <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-<!--    <link href="https://cdn.bootcss.com/jquery.bootstrapvalidator/0.5.3/css/bootstrapValidator.min.css"-->
-<!--          rel="stylesheet">-->
-    <link href="/static/css/bootstrapValidator.min.css" rel="stylesheet">
+<link href="/static/css/bootstrapValidator.min.css" rel="stylesheet">
 
 
-    <!-- Custom fonts for this template -->
     <link href="/static/css/font-awesome.min.css" rel="stylesheet">
 
-    <!-- Custom styles for this template -->
     <link href="/static/css/clean-blog.min.css" rel="stylesheet">
 
     <style>
@@ -185,10 +178,9 @@
 </head>
 
 <body>
-<!-- Navigation -->
 <nav class="navbar navbar-expand-lg navbar-light fixed-top is-fixed" id="mainNav">
     <div class="container">
-        <a class="navbar-brand" href="http://127.0.0.1:5000/">二手好房</a>
+        <a class="navbar-brand" href="{{ url_for('index_page.index') }}">二手好房</a>
         <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
             Menu
             <i class="fas fa-bars"></i>
@@ -198,24 +190,29 @@
 
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="http://127.0.0.1:5000/">首页</a>
+                    <a class="nav-link" href="{{ url_for('index_page.index') }}">首页</a>
                 </li>
 
                 <li class="nav-item" id="user">
-                    
-                    <!--没有处于登录装填下，才显示登录按钮-->
-                    <a class="nav-link" data-toggle="modal" data-target="#login" href="http://127.0.0.1:5000/">登录</a>
-                    
-                </li>
 
-                
+                    {% if user %}
+                    <a id="u_name" class="nav-link" href="{{ url_for('detail_page.user_profile', username=user.name) }}">{{ user.name }}</a>
+                    {% else %}
+                    <a class="nav-link" data-toggle="modal" data-target="#login" href="#">登录</a>
+                    {% endif %}
+
+                </li>
+                {% if user %}
+                <li class="nav-item">
+                    <a class="nav-link" id="logout" href="{{ url_for('logout') }}">退出登录</a>
+                </li>
+                {% endif %}
 
             </ul>
         </div>
     </div>
 </nav>
 
-<!-- Page Header -->
 <header class="masthead" style="background-image: url(&#39;/static/img/home-bg.jpg&#39;)">
     <div class="overlay"></div>
     <div class="container">
@@ -225,13 +222,12 @@
                     <h1>二手好房</h1>
                     <span class="subheading">给您推荐优质房源</span>
 
-                    <!--智能搜索功能-->
                     <div>
                         <ul class="nav nav-tabs my-nav-tab" style="margin:15px 0 0 0">
                             <li class="chanle1 active"><span>地区搜索</span></li>
                             <li class="chanle2"><span>户型搜索</span></li>
                         </ul>
-                        <form class="form-inline" role="form" id="my-form" action="http://127.0.0.1:5000/query">
+                        <form class="form-inline" role="form" id="my-form" action="{{ url_for('index_page.query') }}">
                             <div class="form-group">
                                 <label class="sr-only" for="txt">名称</label>
                                 <input type="text" class="form-control" id="txt" name="addr" placeholder="请输入区域、商圈或小区名开始找房">
@@ -252,9 +248,7 @@
     </div>
 </header>
 
-<!-- Main Content -->
 <div class="container">
-    <!--定位，数量-->
     <div class="row">
         <div class="col-lg-12">
             <div class="area-info">
@@ -267,182 +261,64 @@
         </div>
     </div>
 
-    <!--当前城市-->
     <div class="row info-line">
-        <!-- 模块1标题 -->
         <div class="col-lg-12 tj-header">
             <h3>为您为家</h3>
             <div class="describe">
                 <span>为您精准定位，当前城市房源信息</span>
-                <span class="float-right"><a href="http://127.0.0.1:5000/list/pattern/1" style="color: #3498db; padding-right: 5px">更多北京房源</a></span>
+                <span class="float-right"><a href="{{ url_for('list_page.house_list', category='pattern', page=1) }}" style="color: #3498db; padding-right: 5px">更多北京房源</a></span>
             </div>
         </div>
-        <!-- 模块1信息展示 -->
-        
+        {% for house in new_houses %}
         <div class="col-lg-4">
             <div class="course">
-                <div><a href="http://127.0.0.1:5000/house/113544"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg" alt=""></a></div>
+                <div><a href="{{ url_for('detail_page.house_detail', house_id=house.id) }}"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg" alt=""></a></div>
                 <div class="course-info">
-                    <span>门头沟-双峪-石门营小区</span>
+                    <span>{{ house.region }}-{{ house.block }}-{{ house.address }}</span>
 
                 </div>
                 <div class="course-info1">
-                    <span>2室1厅 - 15平方米</span>
-                    <span class="price float-right">￥&nbsp;1200</span>
+                    <span>{{ house.rooms }} - {{ house.area }}平方米</span>
+                    <span class="price float-right">￥&nbsp;{{ house.price }}</span>
                 </div>
             </div>
         </div>
-        
-        <div class="col-lg-4">
-            <div class="course">
-                <div><a href="http://127.0.0.1:5000/house/113562"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg" alt=""></a></div>
-                <div class="course-info">
-                    <span>怀柔-怀柔-影人四季花园</span>
+        {% endfor %}
 
-                </div>
-                <div class="course-info1">
-                    <span>2室2厅 - 102平方米</span>
-                    <span class="price float-right">￥&nbsp;3000</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-4">
-            <div class="course">
-                <div><a href="http://127.0.0.1:5000/house/113543"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg" alt=""></a></div>
-                <div class="course-info">
-                    <span>门头沟-双峪-门头沟小园村</span>
-
-                </div>
-                <div class="course-info1">
-                    <span>3室1厅 - 19平方米</span>
-                    <span class="price float-right">￥&nbsp;1350</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-4">
-            <div class="course">
-                <div><a href="http://127.0.0.1:5000/house/113437"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg" alt=""></a></div>
-                <div class="course-info">
-                    <span>门头沟-大峪-月季园二区</span>
-
-                </div>
-                <div class="course-info1">
-                    <span>3室1厅 - 100平方米</span>
-                    <span class="price float-right">￥&nbsp;8300</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-4">
-            <div class="course">
-                <div><a href="http://127.0.0.1:5000/house/113542"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg" alt=""></a></div>
-                <div class="course-info">
-                    <span>门头沟-双峪-门头沟小园村</span>
-
-                </div>
-                <div class="course-info1">
-                    <span>3室1厅 - 15平方米</span>
-                    <span class="price float-right">￥&nbsp;1100</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-4">
-            <div class="course">
-                <div><a href="http://127.0.0.1:5000/house/113541"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg" alt=""></a></div>
-                <div class="course-info">
-                    <span>门头沟-大峪-惠润嘉园</span>
-
-                </div>
-                <div class="course-info1">
-                    <span>4室1厅 - 20平方米</span>
-                    <span class="price float-right">￥&nbsp;1400</span>
-                </div>
-            </div>
-        </div>
-        
 
     </div>
     <hr>
 
-    <!--热点推荐-->
     <div class="row info-line">
-        <!-- 模块2标题 -->
         <div class="col-lg-12 tj-header">
             <h3>为您推荐</h3>
             <div class="describe">
                 <span>热点房源，我们为你精选</span>
-                <span class="float-right"><a href="http://127.0.0.1:5000/list/hot_house/1" style="color: #3498db; padding-right: 5px">更多热点房源</a></span>
+                <span class="float-right"><a href="{{ url_for('list_page.house_list', category='hot_house', page=1) }}" style="color: #3498db; padding-right: 5px">更多热点房源</a></span>
             </div>
         </div>
-        <!-- 模块2内容 -->
-        
+        {% for house in hot_houses %}
         <div class="col-lg-3">
             <div class="course">
-                <div><a href="http://127.0.0.1:5000/house/112879"><img class="img-fluid img-box" src="./img/house-bg1.jpg" alt=""></a></div>
+                <div><a href="{{ url_for('detail_page.house_detail', house_id=house.id) }}"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg" alt=""></a></div>
                 <div class="course-info">
-                    <span>房山-房山城关-管道局家属楼</span>
+                    <span>{{ house.region }}-{{ house.block }}-{{ house.address }}</span>
                 </div>
                 <div class="course-info1">
-                    <span>1室1厅 - 46平方米</span>
-                    <span style="color: #3498db">&nbsp;&nbsp;<i class="fa fa-heart" aria-hidden="true">&nbsp;热度5678</i></span>
-                    <span class="price float-right">￥1400</span>
+                    <span>{{ house.rooms }} - {{ house.area }}平方米</span>
+                    <span style="color: #3498db">&nbsp;&nbsp;<i class="fa fa-heart" aria-hidden="true">&nbsp;热度{{ house.page_views }}</i></span>
+                    <span class="price float-right">￥{{ house.price }}</span>
                 </div>
             </div>
         </div>
-        
-        <div class="col-lg-3">
-            <div class="course">
-                <div><a href="http://127.0.0.1:5000/house/102233"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg" alt=""></a></div>
-                <div class="course-info">
-                    <span>房山-良乡-北潞馨家园</span>
-                </div>
-                <div class="course-info1">
-                    <span>3室2厅 - 145平方米</span>
-                    <span style="color: #3498db">&nbsp;&nbsp;<i class="fa fa-heart" aria-hidden="true">&nbsp;热度5678</i></span>
-                    <span class="price float-right">￥4600</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3">
-            <div class="course">
-                <div><a href="http://127.0.0.1:5000/house/99345"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg" alt=""></a></div>
-                <div class="course-info">
-                    <span>通州-梨园-华业东方玫瑰</span>
-                </div>
-                <div class="course-info1">
-                    <span>2室1厅 - 75平方米</span>
-                    <span style="color: #3498db">&nbsp;&nbsp;<i class="fa fa-heart" aria-hidden="true">&nbsp;热度5678</i></span>
-                    <span class="price float-right">￥4700</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3">
-            <div class="course">
-                <div><a href="http://127.0.0.1:5000/house/98637"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg" alt=""></a></div>
-                <div class="course-info">
-                    <span>通州-新华大街-西营前街</span>
-                </div>
-                <div class="course-info1">
-                    <span>2室1厅 - 70平方米</span>
-                    <span style="color: #3498db">&nbsp;&nbsp;<i class="fa fa-heart" aria-hidden="true">&nbsp;热度5678</i></span>
-                    <span class="price float-right">￥3200</span>
-                </div>
-            </div>
-        </div>
-        
+        {% endfor %}
+
 
     </div>
 
 
-    <!--注册登录-->
     <div class="row info-line">
         <div class="col-lg-8 col-md-10 mx-auto">
-            <!-- 注册窗口 -->
             <div id="register" class="modal fade login_form" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -455,7 +331,7 @@
                             <h1 class="text-center">注册</h1>
                         </div>
                         <div class="modal-body">
-                            <form class="form-group" id="registeform" action="http://127.0.0.1:5000/register" method="post">
+                            <form class="form-group" id="registeform" action="{{ url_for('register') }}" method="post">
                                 <div class="form-group">
                                     <label for="" class="form-info">用户名</label>
                                     <input class="form-control" name="username" type="text" placeholder="6-15位字母或数字">
@@ -476,13 +352,12 @@
                                     <button class="btn btn-primary" id="registe-btn">提交</button>
                                     <button class="btn btn-danger" data-dismiss="modal">取消</button>
                                 </div>
-                                <a href="http://127.0.0.1:5000/" data-toggle="modal" data-dismiss="modal" data-target="#login" class="switch-info">已有账号？点我登录</a>
+                                <a href="#" data-toggle="modal" data-dismiss="modal" data-target="#login" class="switch-info">已有账号？点我登录</a>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- 登录窗口 -->
             <div id="login" class="modal fade login_form">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -495,7 +370,7 @@
                             <h1 class="text-center">登录</h1>
                         </div>
                         <div class="modal-body">
-                            <form class="form-group" id="loginform" action="http://127.0.0.1:5000/login" method="post">
+                            <form class="form-group" id="loginform" action="{{ url_for('login') }}" method="post">
                                 <div class="form-group">
                                     <label for="" class="form-info">用户名</label>
                                     <input class="form-control" name="username" type="text" placeholder="">
@@ -508,7 +383,7 @@
                                     <button class="btn btn-primary" id="login-btn">登录</button>
                                     <button class="btn btn-danger" data-dismiss="modal">取消</button>
                                 </div>
-                                <a href="http://127.0.0.1:5000/" data-toggle="modal" data-dismiss="modal" data-target="#register" class="switch-info">还没有账号？点我注册</a>
+                                <a href="#" data-toggle="modal" data-dismiss="modal" data-target="#register" class="switch-info">还没有账号？点我注册</a>
                             </form>
                         </div>
                     </div>
@@ -521,7 +396,6 @@
     <hr>
 </div>
 
-<!-- Footer -->
 <footer>
     <div class="container">
         <div class="row">
@@ -534,16 +408,12 @@
     </div>
 </footer>
 
-<!-- Bootstrap core JavaScript -->
 <script src="/static/vendor/jquery/jquery.min.js"></script>
 <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!--<script src="https://cdn.bootcss.com/jquery.bootstrapvalidator/0.5.3/js/bootstrapValidator.min.js"></script>-->
 <script src="/static/js/bootstrapValidator.min.js"></script>
 <script src="/static/js/login.js"></script>
 
-<!-- Custom scripts for this template -->
 <script src="/static/js/clean-blog.min.js"></script>
-<!--<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>-->
 <script type="text/javascript" src="/static/vendor/echarts-stat/ecStat.min.js"></script>
 <script src="/static/js/echarts.min.js"></script>
 
@@ -621,7 +491,7 @@
 
                 data = {"kw": keyWord, "info": info};
                 $.ajax({
-                    url: "/search/keyword/",
+                    url: "{{ url_for('index_page.search_keyword') }}",
                     type: 'post',
                     dataType: 'json',
                     data: data,
@@ -684,9 +554,4 @@
             $('#list').empty()
         });
     }
-
-
 </script>
-
-
-</body></html>

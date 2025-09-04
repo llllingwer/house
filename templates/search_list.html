@@ -4,6 +4,9 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
     <title>二手好房-搜索结果</title>
     <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
     <link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon" />
@@ -52,7 +55,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light fixed-top is-fixed" id="mainNav">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index.index') }}">二手好房</a>
+            <a class="navbar-brand" href="{{ url_for('index_page.index') }}">二手好房</a>
             <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
                 data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
                 aria-label="Toggle navigation">
@@ -63,9 +66,21 @@
             <div class="collapse navbar-collapse" id="navbarResponsive">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index.index') }}">首页</a>
+                        <a class="nav-link" href="{{ url_for('index_page.index') }}">首页</a>
                     </li>
-                    </ul>
+                    <li class="nav-item" id="user">
+                        {% if user %}
+                            <a id="u_name" class="nav-link" href="{{ url_for('detail_page.user_profile', username=user.name) }}">{{ user.name }}</a>
+                        {% else %}
+                            <a class="nav-link" data-toggle="modal" data-target="#login" href="#">登录</a>
+                        {% endif %}
+                    </li>
+                    {% if user %}
+                    <li class="nav-item">
+                        <a class="nav-link" id="logout" href="{{ url_for('logout') }}">退出登录</a>
+                    </li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
     </nav>
@@ -100,11 +115,11 @@
             {% for house in houses %}
             <div class="col-lg-4 col-md-6" style="margin-bottom: 20px;">
                 <div class="course">
-                    <div><a href="#"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg"
+                    <div><a href="{{ url_for('detail_page.house_detail', house_id=house.id) }}"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg"
                                 alt=""></a></div>
                     <div class="course-info" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
                         title="{{ house.address }}">
-                        <span>{{ house.address }}</span>
+                        <span><a href="{{ url_for('detail_page.house_detail', house_id=house.id) }}">{{ house.address }}</a></span>
                     </div>
                     <div class="course-info1">
                         <span>{{ house.rooms }} - {{ house.area }}平方米</span>
@@ -125,8 +140,7 @@
             <div class="col-lg-12">
                 <nav aria-label="Page navigation">
                    <ul class="pagination justify-content-center">
-    {% if paginate %}
-        {# 构造基础查询字符串，不包含page参数 #}
+    {% if pagination %}
         {% set query_params = {} %}
         {% if query_type == '地区' %}
             {% set _ = query_params.update({'addr': query_str}) %}
@@ -134,23 +148,21 @@
             {% set _ = query_params.update({'rooms': query_str}) %}
         {% endif %}
 
-        {# 上一页链接 #}
-        {% if paginate.has_prev %}
+        {% if pagination.has_prev %}
             <li class="page-item">
-                <a class="page-link" href="{{ url_for('search.query', page=paginate.prev_num, **query_params) }}">上一页</a>
+                <a class="page-link" href="{{ url_for('list_page.search_result', page=pagination.prev_num, **query_params) }}">上一页</a>
             </li>
         {% else %}
             <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
         {% endif %}
 
-        {# 数字页码链接 #}
-        {% for p in paginate.iter_pages() %}
+        {% for p in pagination.iter_pages() %}
             {% if p %}
-                {% if p == paginate.page %}
+                {% if p == pagination.page %}
                     <li class="page-item active"><a class="page-link" href="#">{{ p }}</a></li>
                 {% else %}
                     <li class="page-item">
-                        <a class="page-link" href="{{ url_for('search.query', page=p, **query_params) }}">{{ p }}</a>
+                        <a class="page-link" href="{{ url_for('list_page.search_result', page=p, **query_params) }}">{{ p }}</a>
                     </li>
                 {% endif %}
             {% else %}
@@ -158,10 +170,9 @@
             {% endif %}
         {% endfor %}
 
-        {# 下一页链接 #}
-        {% if paginate.has_next %}
+        {% if pagination.has_next %}
             <li class="page-item">
-                <a class="page-link" href="{{ url_for('search.query', page=paginate.next_num, **query_params) }}">下一页</a>
+                <a class="page-link" href="{{ url_for('list_page.search_result', page=pagination.next_num, **query_params) }}">下一页</a>
             </li>
         {% else %}
             <li class="page-item disabled"><a class="page-link" href="#">下一页</a></li>
@@ -187,7 +198,6 @@
     <script src="/static/vendor/jquery/jquery.min.js"></script>
     <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="/static/js/clean-blog.min.js"></script>
-
 </body>
 
 </html>

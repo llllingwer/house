@@ -1,43 +1,65 @@
-from flask import Blueprint, Flask, render_template, request, jsonify
-from sqlalchemy import func
+from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
+from sqlalchemy import or_, func
+from models import House, User
 
-from models import House
-
-index_page = Blueprint('index', __name__, template_folder='templates')
+index_page = Blueprint('index_page', __name__, template_folder='templates')
 
 
 @index_page.route('/')
 def index():
-    total_houses = House.query.count()
-    latest_houses = House.query.order_by(House.publish_time.desc()).limit(5).all()
-    hot_houses = House.query.order_by(House.publish_time.desc()).all()
-    return render_template("index.html", total_houses=total_houses, latest_houses=latest_houses, hot_houses=hot_houses)
+    """首页"""
+    # 查询浏览量最高的8个房源作为热点推荐
+    hot_houses = House.query.order_by(House.page_views.desc()).limit(8).all()
+    # 查询最新发布的6个房源
+    new_houses = House.query.order_by(House.publish_time.desc()).limit(6).all()
+
+    # 获取登录用户信息
+    user_name = session.get('user_name')
+    user = User.query.filter_by(name=user_name).first() if user_name else None
+
+    return render_template(
+        'index.html',
+        hot_houses=hot_houses,
+        new_houses=new_houses,
+        user=user
+    )
 
 
 @index_page.route('/search/keyword/', methods=['POST'])
 def search_keyword():
-    kw = request.form.get('kw')
-    info = request.form.get('info')
-    houselist = []
-    houselistdic = []
+    """智能搜索关键词提示 (AJAX)"""
+    keyword = request.form.get('kw', '')
+    info_type = request.form.get('info', '')
 
-    # 如果没有关键词，直接返回空
-    if not kw:
-        return jsonify({"code": 0, "info": []})
+    if not keyword:
+        return jsonify(code=0, info='关键词为空')
 
-    if info == "地区搜索":
-        # an address-based search
-        houselist = House.query.with_entities(House.address, func.count()).filter(House.address.contains(kw)).group_by(
-            House.address).all()
+    results = []
+    if '地区' in info_type:
+        # 搜索区域、商圈、小区
+        houses = House.query.with_entities(House.region, House.block, House.address, func.count('*')).filter(or_(
+            House.region.like(f'%{keyword}%'),
+            House.block.like(f'%{keyword}%'),
+            House.address.like(f'%{keyword}%')
+        )).group_by(House.region, House.block, House.address).limit(9).all()
 
-    elif info == "户型搜索":
-        # a layout-based search
-        houselist = House.query.with_entities(House.rooms, func.count()).filter(
-            House.rooms.contains(kw)).group_by(House.rooms).all()
+        results = [{'t_name': f"{h.region}-{h.block}-{h.address}", 'num': h[3]} for h in houses]
 
-    if houselist:
-        for house in houselist:
-            houselistdic.append({"t_name": house[0], "num": house[1]})
-        return jsonify({"code": 1, "info": houselistdic})
-    else:
-        return jsonify({"code": 0, "info": []})
+    elif '户型' in info_type:
+        # 搜索户型
+        houses = House.query.with_entities(House.rooms, func.count('*')).filter(
+            House.rooms.like(f'%{keyword}%')).group_by(House.rooms).limit(9).all()
+        results = [{'t_name': h.rooms, 'num': h[1]} for h in houses]
+
+    if not results:
+        return jsonify(code=0, info=f'未找到关于{keyword}的房屋信息！')
+
+    return jsonify(code=1, info=results)
+
+@index_page.route('/query')
+def query():
+    """处理搜索请求并跳转到搜索结果列表"""
+    addr = request.args.get('addr')
+    rooms = request.args.get('rooms')
+
+    return redirect(url_for('list_page.search_result', page=1, addr=addr, rooms=rooms))
