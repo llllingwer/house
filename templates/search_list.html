@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>二手好房-搜索结果</title>
+    <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon" />
+
+    <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrapValidator.min.css" rel="stylesheet">
+
+    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="/static/css/clean-blog.min.css" rel="stylesheet">
+
+    <style>
+        /* 从 index.html 复制过来的样式，确保页面风格统一 */
+        .course {
+            margin-top: 10px;
+            padding: 7px 5px 0 5px;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+
+        .course-info {
+            height: 37px;
+            font-weight: 500;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .course-info1 {
+            height: 20px;
+            font-weight: 300;
+            font-size: 12px;
+        }
+
+        .course-info span {
+            line-height: 37px;
+        }
+
+        .price {
+            color: #e74c3c;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top is-fixed" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index.index') }}">二手好房</a>
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+                data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
+                aria-label="Toggle navigation">
+                Menu
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index.index') }}">首页</a>
+                    </li>
+                    </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="masthead" style="background-image: url('/static/img/about-bg.jpg')">
+        <div class="overlay"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-md-10 mx-auto">
+                    <div class="page-heading">
+                        <h1>搜索结果</h1>
+                        <span class="subheading">为您找到的房源信息</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="row" style="margin-top: 20px;">
+            <div class="col-lg-12">
+                {% if query_str %}
+                <h4>搜索 "{{ query_str }}" ({{ query_type }}) 的结果:</h4>
+                {% else %}
+                <h4>全部房源列表:</h4>
+                {% endif %}
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            {% for house in houses %}
+            <div class="col-lg-4 col-md-6" style="margin-bottom: 20px;">
+                <div class="course">
+                    <div><a href="#"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg"
+                                alt=""></a></div>
+                    <div class="course-info" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                        title="{{ house.address }}">
+                        <span>{{ house.address }}</span>
+                    </div>
+                    <div class="course-info1">
+                        <span>{{ house.rooms }} - {{ house.area }}平方米</span>
+                        <span class="price float-right">￥&nbsp;{{ house.price }}/月</span>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-lg-12">
+                <div class="alert alert-warning" role="alert">
+                    抱歉，没有找到相关的房源信息，请尝试更换关键词。
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <nav aria-label="Page navigation">
+                   <ul class="pagination justify-content-center">
+    {% if paginate %}
+        {# 构造基础查询字符串，不包含page参数 #}
+        {% set query_params = {} %}
+        {% if query_type == '地区' %}
+            {% set _ = query_params.update({'addr': query_str}) %}
+        {% elif query_type == '户型' %}
+            {% set _ = query_params.update({'rooms': query_str}) %}
+        {% endif %}
+
+        {# 上一页链接 #}
+        {% if paginate.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('search.query', page=paginate.prev_num, **query_params) }}">上一页</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
+        {% endif %}
+
+        {# 数字页码链接 #}
+        {% for p in paginate.iter_pages() %}
+            {% if p %}
+                {% if p == paginate.page %}
+                    <li class="page-item active"><a class="page-link" href="#">{{ p }}</a></li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('search.query', page=p, **query_params) }}">{{ p }}</a>
+                    </li>
+                {% endif %}
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            {% endif %}
+        {% endfor %}
+
+        {# 下一页链接 #}
+        {% if paginate.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('search.query', page=paginate.next_num, **query_params) }}">下一页</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled"><a class="page-link" href="#">下一页</a></li>
+        {% endif %}
+    {% endif %}
+</ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-md-10 mx-auto">
+                    <p class="copyright text-muted">Copyright © 二手好房 2019</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/vendor/jquery/jquery.min.js"></script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/clean-blog.min.js"></script>
+
+</body>
+
+</html>
