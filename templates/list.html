@@ -173,7 +173,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
     <div class="container">
-        <a class="navbar-brand" href="{{ url_for('index_page.index') }}">二手好房</a>
+        <a class="navbar-brand" href="http://127.0.0.1:5000/">二手好房</a>
         <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
             Menu
             <i class="fas fa-bars"></i>
@@ -183,23 +183,16 @@
 
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('index_page.index') }}">首页</a>
+                    <a class="nav-link" href="http://127.0.0.1:5000/">首页</a>
                 </li>
 
                 <li class="nav-item" id="user">
 
-                    {% if user %}
-                        <a id="u_name" class="nav-link" href="{{ url_for('detail_page.user_profile', username=user.name) }}">{{ user.name }}</a>
-                    {% else %}
-                        <a class="nav-link" data-toggle="modal" data-target="#login" href="#">登录</a>
-                    {% endif %}
+                        <a class="nav-link" data-toggle="modal" data-target="#login" href="http://127.0.0.1:5000/list/pattern/1">登录</a>
+
                 </li>
 
-                {% if user %}
-                <li class="nav-item">
-                    <a class="nav-link" id="logout" href="{{ url_for('logout') }}">退出登录</a>
-                </li>
-                {% endif %}
+
 
             </ul>
         </div>
@@ -224,77 +217,110 @@
 
     <div class="row info-line">
         <div class="col-lg-12 tj-header">
-            <h3>为你为家</h3>
+            <h3>{% if query_str %}{{ query_type }}: "{{ query_str }}"{% else %}为你为家{% endif %}</h3>
             <div class="describe">
                 <span>为您精准定位，当前城市房源信息</span>
-                <span class="float-right"><a href="{{ url_for('list_page.house_list', category='pattern', page=1) }}" style="color: #17a2b8; padding-right: 5px"></a></span>
+                <span class="float-right"><a href="http://127.0.0.1:5000/list/pattern/1" style="color: #17a2b8; padding-right: 5px"></a></span>
             </div>
         </div>
         <div class="collection col-lg-12 col-md-12">
             <div id="fill-data" class="1">
-
-
-                    {% for house in houses %}
-                    <div class="row collection-line">
-
-                        <div class="col-lg-5 col-md-5 mx-auto">
-                            <div><a href="{{ url_for('detail_page.house_detail', house_id=house.id) }}"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg" alt=""></a></div>
-                        </div>
-                        <div class="col-lg-5 col-md-5 mx-auto">
-                            <div class="collection-line-info">
-                                <div class="title">
-                                    <span><a href="{{ url_for('detail_page.house_detail', house_id=house.id) }}">{{ house.title }}</a></span>
-                                </div>
-                                <div>
-                                    <span class="attribute-text">房源地址：</span>
-                                    &nbsp;
-                                    <span class="info-text">{{ house.region }}-{{ house.block }}-{{ house.address }}</span>
-                                </div>
-                                <div>
-                                    <span class="attribute-text">建筑面积：</span>
-                                    &nbsp;
-                                    <span class="info-text">{{ house.area }}平方米</span>
-                                </div>
-                                <div>
-                                    <span class="attribute-text">房源户型：</span>
-                                    &nbsp;
-                                    <span class="info-text">{{ house.rooms }}</span>
-                                </div>
-                                <div>
-                                    <span class="attribute-text">房源朝向：</span>
-                                    &nbsp;
-                                    <span class="info-text">{{ house.direction }}</span>
-                                </div>
-                                <div>
-                                    <span class="attribute-text">交通条件：</span>
-                                    &nbsp;
-                                    <span class="info-text">{{ house.traffic }}</span>
-                                </div>
-
-                                <div>
-                                <span class="attribute-text"><i class="fa fa-heart" aria-hidden="true" style="color: #e74c3c"></i> {{ house.page_views }}人浏览过</span>
-                                    &nbsp;
-                                    <span class="info-text"></span>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="col-lg-2 col-md-2 mx-auto">
-                            <div class="info-more">
-                                <span class="info-text" style="color: #e74c3c">￥&nbsp;{{ house.price }}</span>
-                                <span><a href="{{ url_for('detail_page.house_detail', house_id=house.id) }}"><i class="fa fa-arrow-right" aria-hidden="true"></i></a></span>
-                            </div>
-                        </div>
-
+                {% for house in houses %}
+                <div class="row collection-line">
+                    <div class="col-lg-5 col-md-5 mx-auto">
+                        <div><a href="{{ url_for('detail_page.house_detail', house_id=house.id) }}"><img class="img-fluid img-box" src="/static/img/house-bg1.jpg" alt=""></a></div>
                     </div>
-                    {% endfor %}
-
+                    <div class="col-lg-5 col-md-5 mx-auto">
+                        <div class="collection-line-info">
+                            <div class="title">
+                                <span><a href="{{ url_for('detail_page.house_detail', house_id=house.id) }}">{{ house.title }}</a></span>
+                            </div>
+                            <div>
+                                <span class="attribute-text">房源地址：</span>
+                                &nbsp;
+                                <span class="info-text">{{ house.region }} - {{ house.block }} - {{ house.address }}</span>
+                            </div>
+                            <div>
+                                <span class="attribute-text">建筑面积：</span>
+                                &nbsp;
+                                <span class="info-text">{{ house.area }}平方米</span>
+                            </div>
+                            <div>
+                                <span class="attribute-text">房源户型：</span>
+                                &nbsp;
+                                <span class="info-text">{{ house.rooms }}</span>
+                            </div>
+                            <div>
+                                <span class="attribute-text">房源朝向：</span>
+                                &nbsp;
+                                <span class="info-text">{{ house.direction }}</span>
+                            </div>
+                            <div>
+                                <span class="attribute-text">交通条件：</span>
+                                &nbsp;
+                                <span class="info-text">{{ house.traffic if house.traffic else '暂无信息！' }}</span>
+                            </div>
+                            <div>
+                                <span class="attribute-text"><i class="fa fa-heart" aria-hidden="true" style="color: #e74c3c"></i> {{ house.page_views }}人浏览过</span>
+                                &nbsp;
+                                <span class="info-text"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-2 mx-auto">
+                        <div class="info-more">
+                            <span class="info-text" style="color: #e74c3c">￥&nbsp;{{ house.price }}</span>
+                            <span><a href="{{ url_for('detail_page.house_detail', house_id=house.id) }}"><i class="fa fa-arrow-right" aria-hidden="true"></i></a></span>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-warning" role="alert">
+                    抱歉，没有找到相关的房源信息，请尝试更换关键词。
+                </div>
+                {% endfor %}
             </div>
-
 
             <div class="row my-page-line">
                 <div class="col-lg-12 col-md-12 mx-auto">
-                    <div class="zxf_pagediv"><span class="disabled">上一页</span><span class="current">1</span><a href="javascript:;" class="zxfPagenum nextpage">2</a><a href="javascript:;" class="zxfPagenum">3</a><a href="javascript:;" class="zxfPagenum">4</a><a href="javascript:;" class="zxfPagenum">5</a><a href="javascript:;" class="zxfPagenum">6</a><a href="javascript:;" class="zxfPagenum">7</a><a href="javascript:;" class="zxfPagenum">8</a><a href="javascript:;" class="zxfPagenum">9</a><span>...</span><a href="javascript:;" class="nextbtn">下一页</a><span>共<b>11332</b>页，</span><span>到第<input type="number" class="zxfinput" value="">页</span><span class="zxfokbtn">确定</span></div>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if pagination %}
+                                {# 上一页链接 #}
+                                {% if pagination.has_prev %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for(request.endpoint, page=pagination.prev_num, category=category) }}">上一页</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
+                                {% endif %}
+
+                                {# 数字页码链接 #}
+                                {% for p in pagination.iter_pages() %}
+                                    {% if p %}
+                                        {% if p == pagination.page %}
+                                            <li class="page-item active"><a class="page-link" href="#">{{ p }}</a></li>
+                                        {% else %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ url_for(request.endpoint, page=p, category=category) }}">{{ p }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {# 下一页链接 #}
+                                {% if pagination.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for(request.endpoint, page=pagination.next_num, category=category) }}">下一页</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled"><a class="page-link" href="#">下一页</a></li>
+                                {% endif %}
+                            {% endif %}
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -319,7 +345,7 @@
                             <h1 class="text-center">注册</h1>
                         </div>
                         <div class="modal-body">
-                            <form class="form-group" id="registeform" action="{{ url_for('register') }}" method="post">
+                            <form class="form-group" id="registeform" action="http://127.0.0.1:5000/register" method="post">
                                 <div class="form-group">
                                     <label for="" class="form-info">用户名</label>
                                     <input class="form-control" name="username" type="text" placeholder="6-15位字母或数字">
@@ -340,7 +366,7 @@
                                     <button class="btn btn-primary" id="registe-btn">提交</button>
                                     <button class="btn btn-danger" data-dismiss="modal">取消</button>
                                 </div>
-                                <a href="#" data-toggle="modal" data-dismiss="modal" data-target="#login" class="switch-info">已有账号？点我登录</a>
+                                <a href="http://127.0.0.1:5000/list/pattern/1" data-toggle="modal" data-dismiss="modal" data-target="#login" class="switch-info">已有账号？点我登录</a>
                             </form>
                         </div>
                     </div>
@@ -358,7 +384,7 @@
                             <h1 class="text-center">登录</h1>
                         </div>
                         <div class="modal-body">
-                            <form class="form-group" id="loginform" action="{{ url_for('login') }}" method="post">
+                            <form class="form-group" id="loginform" action="http://127.0.0.1:5000/login" method="post">
                                 <div class="form-group">
                                     <label for="" class="form-info">用户名</label>
                                     <input class="form-control" name="username" type="text" placeholder="">
@@ -371,7 +397,7 @@
                                     <button class="btn btn-primary" id="login-btn">登录</button>
                                     <button class="btn btn-danger" data-dismiss="modal">取消</button>
                                 </div>
-                                <a href="#" data-toggle="modal" data-dismiss="modal" data-target="#register" class="switch-info">还没有账号？点我注册</a>
+                                <a href="http://127.0.0.1:5000/list/pattern/1" data-toggle="modal" data-dismiss="modal" data-target="#register" class="switch-info">还没有账号？点我注册</a>
                             </form>
                         </div>
                     </div>
@@ -386,8 +412,6 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-md-10 mx-auto">
-
-
                 <p class="copyright text-muted">Copyright © 二手好房 2019</p>
             </div>
         </div>
@@ -398,37 +422,7 @@
 <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/static/js/bootstrapValidator.min.js"></script>
 <script src="/static/js/login.js"></script>
-<script src="/static/js/zxf_page.js"></script>
-
 
 <script src="/static/js/clean-blog.min.js"></script>
 
-<script>
-    $(document).ready(function () {
-        $(".zxf_pagediv").createPage({
-            pageNum: {{ pagination.pages or 1 }},
-            current: {{ pagination.page or 1 }},
-            backfun: function (e) {
-                console.log(e['current']);
-                var n_current = e['current'];
-                var current_url = new URL(window.location.href);
-                var path_parts = current_url.pathname.split('/');
-                var new_url;
-
-                if (path_parts.includes('search_result')) {
-                    // 处理搜索结果页的分页
-                    current_url.searchParams.set('page', n_current);
-                    new_url = current_url.href;
-                } else {
-                    // 处理最新/热门房源列表页的分页
-                    var category = '{{ category }}';
-                    new_url = '{{ url_for('list_page.house_list', category='category_placeholder', page=1) }}'
-                                .replace('category_placeholder', category)
-                                .replace('page=1', 'page=' + n_current);
-                }
-
-                window.location.href = new_url;
-            }
-        });
-    });
-</script>
+</body></html>

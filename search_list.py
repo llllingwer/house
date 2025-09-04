@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from models import House
 
-search_list_page = Blueprint('search', __name__, template_folder='templates')
+search_list_page = Blueprint('search_page', __name__, template_folder='templates')
 
 
 @search_list_page.route('/query', methods=['GET'])

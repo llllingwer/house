@@ -43,7 +43,7 @@ def search_keyword():
             House.address.like(f'%{keyword}%')
         )).group_by(House.region, House.block, House.address).limit(9).all()
 
-        results = [{'t_name': f"{h.region}-{h.block}-{h.address}", 'num': h[3]} for h in houses]
+        results = [{'t_name': f"{h.address}", 'num': h[3]} for h in houses]
 
     elif '户型' in info_type:
         # 搜索户型
